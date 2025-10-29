@@ -1,0 +1,536 @@
+<!-- 
+Este es el "Salón" (Frontend).
+Contiene 3 partes:
+1. El HTML (la estructura).
+2. El <style> (los colores y fuentes inspirados en tu mockup).
+3. El <script> (el "mesero" JavaScript que habla con app.py).
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizador de Archivos</title>
+    <!-- 1. Cargar Tailwind CSS desde internet -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Definir los colores y fuentes de tu mockup -->
+    <style>
+        /*
+        Las líneas amarillas @tailwind (13-15) se eliminaron.
+        No eran necesarias porque ya cargamos Tailwind con el script de arriba.
+        */
+        
+        /* Importar las fuentes que se parecen a tu mockup */
+        @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+
+        /* Aplicar las fuentes */
+        html {
+            /* Fuente limpia (como el texto pequeño del mockup) */
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3 {
+            /* Fuente moderna y gruesa (como los títulos del mockup) */
+            font-family: 'Lexend', sans-serif;
+        }
+
+        /* Definir la paleta de colores de tu mockup */
+        body {
+            /* El color crema/amarillo claro de fondo */
+            background-color: #FFFBEB; 
+        }
+
+        /* Crear clases personalizadas que podamos usar en el HTML */
+        .bg-custom-green {
+            /* El verde principal del mockup */
+            background-color: #5F8D4E; 
+        }
+        .bg-custom-light-green {
+            /* Un verde más claro para acentos */
+            background-color: #A4D0A4;
+        }
+        .text-custom-green {
+            color: #5F8D4E;
+        }
+        .border-custom-green {
+            border-color: #5F8D4E;
+        }
+    </style>
+</head>
+<body class="text-gray-900 antialiased">
+
+    <!-- ===== NAVEGACIÓN ===== -->
+    <nav class="bg-custom-green shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Título -->
+                <div class="flex-shrink-0 flex items-center">
+                    <h1 class="text-2xl font-bold text-white">Organizador de Archivos</h1>
+                </div>
+                <!-- Botón de Usuario (solo visual) -->
+                <div class="flex items-center">
+                    <span class="text-white text-sm mr-3" id="user-greeting"></span>
+                    <div class="w-8 h-8 bg-custom-light-green rounded-full flex items-center justify-center">
+                        <span class="text-white font-semibold" id="user-initial">?</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== CONTENEDOR PRINCIPAL ===== -->
+    <main class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- ===== VISTA 1: DASHBOARD DE PERFILES (Visible por defecto) ===== -->
+        <div id="dashboard-view">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-gray-800">Mis Perfiles</h2>
+                <button id="show-create-profile-btn" class="bg-custom-green text-white font-semibold py-2 px-5 rounded-lg shadow-md hover:bg-opacity-90 transition duration-300">
+                    + Crear Nuevo Perfil
+                </button>
+            </div>
+
+            <!-- Contenedor de las "Tarjetas" de Perfil (como las especias) -->
+            <!-- El JavaScript llenará esto -->
+            <div id="profile-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Plantilla de Tarjeta (El JS la usará para clonar) -->
+                <!-- <div class="bg-white rounded-2xl shadow-lg overflow-hidden transition-transform transform hover:scale-[1.02]">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-3">Universidad</h3>
+                        <p class="text-sm text-gray-500 mb-1">Movidos: <span class="font-semibold text-gray-700">1450</span></p>
+                        <p class="text-sm text-gray-500 mb-4">Último uso: <span class="font-semibold text-gray-700">hace 2 días</span></p>
+                        
+                        <div class="mb-4 space-y-2">
+                            <p class="text-xs text-gray-600 truncate" title="C:/Users/...">
+                                <span class="font-semibold text-custom-green">ORIGEN:</span> C:/Users/sebas/Downloads
+                            </p>
+                            <p class="text-xs text-gray-600 truncate" title="C:/Users/...">
+                                <span class="font-semibold text-red-600">DESTINO:</span> C:/Users/sebas/Documents/Tareas_Uni
+                            </p>
+                        </div>
+
+                        <button class="w-full bg-custom-green text-white font-bold py-3 px-4 rounded-lg hover:bg-opacity-90 transition duration-300">
+                            Ejecutar Perfil
+                        </button>
+                    </div>
+                </div> -->
+                <!-- Fin de la plantilla -->
+            </div>
+        </div>
+
+        <!-- ===== VISTA 2: CREAR NUEVO PERFIL (Oculta por defecto) ===== -->
+        <div id="create-profile-view" class="hidden">
+            <div class="bg-white p-8 rounded-2xl shadow-lg max-w-3xl mx-auto">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Crear Nuevo Perfil</h2>
+
+                <!-- Formulario -->
+                <form id="create-profile-form" class="space-y-6">
+                    
+                    <!-- 1. Nombre -->
+                    <div>
+                        <label for="profile-name" class="block text-sm font-medium text-gray-700 mb-1">Paso 1: Nombre del Perfil</label>
+                        <input type="text" id="profile-name" placeholder="Ej: Universidad, Trabajo" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-custom-green focus:border-custom-green" required>
+                    </div>
+
+                    <!-- 2. Origen -->
+                    <div>
+                        <label for="profile-source" class="block text-sm font-medium text-gray-700 mb-1">Paso 2: Carpeta de Origen (Dónde analizar)</label>
+                        <select id="profile-source" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-custom-green focus:border-custom-green">
+                            <option value="">Cargando carpetas...</option>
+                            <!-- El JS llenará esto. Ej: <option value="C:/Users/...">Descargas</option> -->
+                        </select>
+                        <input type="text" id="profile-source-manual" placeholder="O pega una ruta manual aquí" class="w-full px-4 py-2 border border-gray-300 rounded-lg mt-2 focus:ring-custom-green focus:border-custom-green">
+                        <p class="text-xs text-gray-500 mt-1">Usa la lista o la ruta manual, no ambos.</p>
+                    </div>
+
+                    <!-- 3. Destino -->
+                    <div>
+                        <label for="profile-dest" class="block text-sm font-medium text-gray-700 mb-1">Paso 3: Carpeta de Destino (Dónde guardar)</label>
+                        <select id="profile-dest" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-custom-green focus:border-custom-green">
+                            <option value="">Cargando carpetas...</option>
+                            <!-- El JS llenará esto -->
+                        </select>
+                        <input type="text" id="profile-dest-manual" placeholder="O pega una ruta manual aquí" class="w-full px-4 py-2 border border-gray-300 rounded-lg mt-2 focus:ring-custom-green focus:border-custom-green">
+                    </div>
+
+                    <!-- 4. Nombre Carpeta Principal -->
+                    <div>
+                        <label for="profile-main-folder" class="block text-sm font-medium text-gray-700 mb-1">Paso 4: Nombre de la Carpeta Contenedora</label>
+                        <input type="text" id="profile-main-folder" placeholder="Ej: Tareas_Universidad, Proyectos_2025" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-custom-green focus:border-custom-green" required>
+                    </div>
+
+                    <!-- 5. Materias -->
+                    <div>
+                        <label for="profile-subjects" class="block text-sm font-medium text-gray-700 mb-1">Paso 5: Materias (separadas por coma)</label>
+                        <input type="text" id="profile-subjects" placeholder="Ej: Calculo, Fisica, Historia del Arte" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-custom-green focus:border-custom-green" required>
+                    </div>
+
+                    <!-- 6. Manejo de 'Otros' -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Paso 6: Archivos no coincidentes</label>
+                        <div class="flex items-center space-x-6">
+                            <label class="flex items-center">
+                                <input type="radio" name="manage-others" value="mover" class="focus:ring-custom-green text-custom-green" checked>
+                                <span class="ml-2">Mover a carpeta 'Otros'</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="manage-others" value="ignorar" class="focus:ring-custom-green text-custom-green">
+                                <span class="ml-2">Ignorar (dejarlos en origen)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="flex justify-end space-x-4 pt-4">
+                        <button type="button" id="cancel-create-btn" class="bg-gray-200 text-gray-700 font-semibold py-2 px-5 rounded-lg hover:bg-gray-300 transition duration-300">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="bg-custom-green text-white font-semibold py-2 px-5 rounded-lg shadow-md hover:bg-opacity-90 transition duration-300">
+                            Guardar Perfil
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ===== MODAL DE ESTADO (Cargando, Éxito, Error) ===== -->
+    <!-- Este es un pop-up que se muestra sobre toda la pantalla -->
+    <div id="status-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            
+            <!-- Contenido de Cargando -->
+            <div id="modal-loading" class="p-8 text-center">
+                <!-- Icono de Spinner -->
+                <svg class="animate-spin h-12 w-12 text-custom-green mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <h3 class="text-2xl font-bold mt-4">Organizando...</h3>
+                <p class="text-gray-600 mt-2">Moviendo archivos, por favor espera.</p>
+            </div>
+
+            <!-- Contenido de Éxito -->
+            <div id="modal-success" class="p-8 text-center hidden">
+                <!-- Icono de Check -->
+                <div class="w-16 h-16 rounded-full bg-custom-light-green flex items-center justify-center mx-auto">
+                    <svg class="w-10 h-10 text-custom-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h3 class="text-2xl font-bold mt-4">¡Organización Completa!</h3>
+                <div id="success-report" class="text-left text-gray-700 mt-4 space-y-1">
+                    <!-- El JS llenará esto -->
+                </div>
+                <button id="modal-success-close" class="mt-6 w-full bg-custom-green text-white font-semibold py-2 px-4 rounded-lg hover:bg-opacity-90 transition duration-300">
+                    Genial
+                </button>
+            </div>
+
+            <!-- Contenido de Error -->
+            <div id="modal-error" class="p-8 text-center hidden">
+                <!-- Icono de Error -->
+                <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto">
+                    <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h3 class="text-2xl font-bold mt-4">¡Oh no! Hubo un Error</h3>
+                <p id="error-message" class="text-gray-700 mt-2">No se pudo completar la acción.</p>
+                <button id="modal-error-close" class="mt-6 w-full bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-700 transition duration-300">
+                    Entendido
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ===== 3. El "Mesero" (JavaScript) ===== -->
+    <!-- Este script habla con app.py para hacer todo el trabajo -->
+    <script>
+        // --- Configuración ---
+        const API_URL = 'http://127.0.0.1:5000'; // La "cocina"
+
+        // --- Selectores de Elementos ---
+        const dashboardView = document.getElementById('dashboard-view');
+        const createProfileView = document.getElementById('create-profile-view');
+        const profileListContainer = document.getElementById('profile-list-container');
+        
+        // Botones
+        const showCreateProfileBtn = document.getElementById('show-create-profile-btn');
+        const cancelCreateBtn = document.getElementById('cancel-create-btn');
+        const createProfileForm = document.getElementById('create-profile-form');
+
+        // Formulario
+        const sourceSelect = document.getElementById('profile-source');
+        const sourceManualInput = document.getElementById('profile-source-manual');
+        const destSelect = document.getElementById('profile-dest');
+        const destManualInput = document.getElementById('profile-dest-manual');
+
+        // Modal
+        const statusModal = document.getElementById('status-modal');
+        const modalLoading = document.getElementById('modal-loading');
+        const modalSuccess = document.getElementById('modal-success');
+        const modalError = document.getElementById('modal-error');
+        const successReport = document.getElementById('success-report');
+        const errorMessage = document.getElementById('error-message');
+        const modalSuccessClose = document.getElementById('modal-success-close');
+        const modalErrorClose = document.getElementById('modal-error-close');
+
+        // --- Lógica de Vistas (Navegación) ---
+        function showDashboardView() {
+            dashboardView.classList.remove('hidden');
+            createProfileView.classList.add('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function showCreateProfileView() {
+            dashboardView.classList.add('hidden');
+            createProfileView.classList.remove('hidden');
+            createProfileForm.reset(); // Limpiar el formulario
+            window.scrollTo(0, 0);
+        }
+
+        // --- Lógica del Modal ---
+        function showLoadingModal() {
+            modalLoading.classList.remove('hidden');
+            modalSuccess.classList.add('hidden');
+            modalError.classList.add('hidden');
+            statusModal.classList.remove('hidden');
+        }
+
+        function showSuccessModal(report, time) {
+            successReport.innerHTML = `
+                <p><strong>Movidos:</strong> ${report.movidos}</p>
+                <p><strong>Renombrados:</strong> ${report.renombrados}</p>
+                <p><strong>Omitidos:</strong> ${report.omitidos}</p>
+                <p><strong>Tiempo total:</strong> ${time} segundos</p>
+            `;
+            modalLoading.classList.add('hidden');
+            modalSuccess.classList.remove('hidden');
+            modalError.classList.add('hidden');
+            statusModal.classList.remove('hidden');
+        }
+
+        function showErrorModal(message) {
+            errorMessage.textContent = message;
+            modalLoading.classList.add('hidden');
+            modalSuccess.classList.add('hidden');
+            modalError.classList.remove('hidden');
+            statusModal.classList.remove('hidden');
+        }
+
+        function hideModal() {
+            statusModal.classList.add('hidden');
+        }
+
+        // --- Lógica Principal (Hablar con el "Chef" Python) ---
+
+        /**
+         * Carga las carpetas por defecto (Descargas, etc.) desde la API
+         * y las pone en los menús <select> del formulario.
+         */
+        async function loadDefaultFolders() {
+            try {
+                const response = await fetch(`${API_URL}/api/get-default-folders`);
+                if (!response.ok) throw new Error('No se pudo cargar las carpetas');
+                
+                const folders = await response.json();
+                
+                // Limpiar los <select>
+                sourceSelect.innerHTML = '<option value="">Elige una carpeta...</option>';
+                destSelect.innerHTML = '<option value="">Elige una carpeta...</option>';
+                
+                // Llenar con las opciones encontradas
+                for (const [name, path] of Object.entries(folders)) {
+                    sourceSelect.innerHTML += `<option value="${path}">${name} (${path})</option>`;
+                    destSelect.innerHTML += `<option value="${path}">${name} (${path})</option>`;
+                }
+
+                // Añadir opción manual
+                sourceSelect.innerHTML += '<option value="manual">Usar ruta manual...</option>';
+                destSelect.innerHTML += '<option value="manual">Usar ruta manual...</option>';
+
+            } catch (error) {
+                console.error('Error cargando carpetas:', error);
+                sourceSelect.innerHTML = '<option value="">Error al cargar</form>';
+                destSelect.innerHTML = '<option value="">Error al cargar</form>';
+            }
+        }
+        
+        /**
+         * Pide los perfiles a app.py y los dibuja en la pantalla.
+         */
+        async function loadProfiles() {
+            try {
+                const response = await fetch(`${API_URL}/api/get-profiles`);
+                if (!response.ok) throw new Error('No se pudo conectar al servidor');
+
+                const profiles = await response.json();
+                
+                // Ordenar por más reciente primero
+                profiles.sort((a, b) => new Date(b.ultimo_uso_timestamp) - new Date(a.ultimo_uso_timestamp));
+
+                profileListContainer.innerHTML = ''; // Limpiar la lista
+                
+                if (profiles.length === 0) {
+                    profileListContainer.innerHTML = `
+                        <p class="text-gray-600 col-span-full text-center">
+                            No tienes perfiles. ¡Crea uno para empezar!
+                        </p>
+                    `;
+                }
+
+                // Dibujar cada "tarjeta" de perfil
+                profiles.forEach(profile => {
+                    const card = document.createElement('div');
+                    card.className = "bg-white rounded-2xl shadow-lg overflow-hidden transition-transform transform hover:scale-[1.02]";
+                    
+                    // Formatear fecha (simplificado)
+                    const lastUsed = new Date(profile.ultimo_uso_timestamp).toLocaleString('es-ES', {
+                        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                    });
+
+                    card.innerHTML = `
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-3">${profile.nombre_visible}</h3>
+                            <p class="text-sm text-gray-500 mb-1">Movidos: <span class="font-semibold text-gray-700">${profile.contador_archivos_movidos}</span></p>
+                            <p class="text-sm text-gray-500 mb-4">Último uso: <span class="font-semibold text-gray-700">${lastUsed}</span></p>
+                            
+                            <div class="mb-4 space-y-2">
+                                <p class="text-xs text-gray-600 truncate" title="${profile.ruta_origen}">
+                                    <span class="font-semibold text-custom-green">ORIGEN:</span> ${profile.ruta_origen}
+                                </p>
+                                <p class="text-xs text-gray-600 truncate" title="${profile.ruta_destino}">
+                                    <span class="font-semibold text-red-600">DESTINO:</span> ${profile.ruta_destino}
+                                </p>
+                            </div>
+
+                            <button data-profile-id="${profile.id_perfil}" class="run-profile-btn w-full bg-custom-green text-white font-bold py-3 px-4 rounded-lg hover:bg-opacity-90 transition duration-300">
+                                Ejecutar Perfil
+                            </button>
+                        </div>
+                    `;
+                    profileListContainer.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error('Error cargando perfiles:', error);
+                profileListContainer.innerHTML = `
+                    <p class="text-red-600 col-span-full text-center">
+                        Error al cargar perfiles. ¿Está 'app.py' ejecutándose?
+                    </p>
+                `;
+            }
+        }
+
+        /**
+         * Le dice a app.py que ejecute un perfil.
+         */
+        async function handleRunProfile(event) {
+            // Asegurarnos de que el clic fue en un botón de ejecutar
+            const button = event.target.closest('.run-profile-btn');
+            if (!button) return;
+
+            const profileId = button.dataset.profileId;
+            
+            showLoadingModal();
+
+            try {
+                const response = await fetch(`${API_URL}/api/run-profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: profileId })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error || 'Error desconocido');
+                }
+
+                // Éxito
+                showSuccessModal(result.report, result.total_time);
+                loadProfiles(); // Recargar perfiles para actualizar estadísticas
+
+            } catch (error) {
+                console.error('Error al ejecutar perfil:', error);
+                showErrorModal(error.message);
+            }
+        }
+
+        /**
+         * Envía los datos del formulario a app.py para crear un perfil.
+         */
+        async function handleCreateProfile(event) {
+            event.preventDefault(); // Evitar que la página se recargue
+
+            // Recolectar datos del formulario
+            const sourcePath = sourceSelect.value === 'manual' ? sourceManualInput.value : sourceSelect.value;
+            const destPath = destSelect.value === 'manual' ? destManualInput.value : destSelect.value;
+            
+            const profileData = {
+                nombre_visible: document.getElementById('profile-name').value,
+                ruta_origen: sourcePath,
+                ruta_destino: destPath,
+                nombre_carpeta_principal: document.getElementById('profile-main-folder').value,
+                lista_materias: document.getElementById('profile-subjects').value,
+                manejo_otros: document.querySelector('input[name="manage-others"]:checked').value
+            };
+            
+            showLoadingModal();
+
+            try {
+                const response = await fetch(`${API_URL}/api/create-profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(profileData)
+                });
+
+                const result = await response.json();
+                
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error || 'Error desconocido al crear');
+                }
+
+                // Éxito
+                hideModal();
+                showDashboardView(); // Volver al dashboard
+                loadProfiles(); // Recargar para ver el nuevo perfil
+
+            } catch (error) {
+                console.error('Error al crear perfil:', error);
+                showErrorModal(error.message);
+            }
+        }
+        
+        // --- Event Listeners (Poner todo en marcha) ---
+
+        // Cuando la página se carga por primera vez
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfiles();
+            loadDefaultFolders();
+            
+            // Lógica simple para el saludo de usuario
+            // En una app real, esto vendría del login
+            const user = "Usuario"; // Simplificado
+            document.getElementById('user-greeting').textContent = `Hola, ${user}`;
+            document.getElementById('user-initial').textContent = user[0].toUpperCase();
+        });
+
+        // Botones de navegación
+        showCreateProfileBtn.addEventListener('click', showCreateProfileView);
+        cancelCreateBtn.addEventListener('click', showDashboardView);
+
+        // Botones del modal
+        modalSuccessClose.addEventListener('click', hideModal);
+        modalErrorClose.addEventListener('click', hideModal);
+
+        // Botones de acción
+        profileListContainer.addEventListener('click', handleRunProfile);
+        createProfileForm.addEventListener('submit', handleCreateProfile);
+
+    </script>
+
+</body>
+</html>

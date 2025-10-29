@@ -1,0 +1,3 @@
+La base de datos se encuentra en C:\Users\TuUsuario\AppData\Roaming\OrganizadorMaterias
+
+Esto se hizo con el objetivo de poder mantener privacidad para cada usuario de la computadora que use este programa, así que solamente guarda los datos de manera individual por usuario. Quise hacerlo en la nube usando supabase, pero para seguir la limitación de usar archivos csv opté por hacerlo de esta manera. Deje una captura de pantalla dentro de la carpeta "Para Erick" para enseñar que se crea el archivo al ejecutar iniciar.
